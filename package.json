@@ -1,0 +1,44 @@
+{
+  "name": "agent-vision-mcp",
+  "version": "0.1.0",
+  "description": "为非视觉模型提供图片分析能力的 MCP 服务器——用户可自行配置 OpenAI 兼容的视觉 API",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "agent-vision-mcp": "dist/index.js"
+  },
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts",
+    "build": "tsc",
+    "clean": "rm -rf dist"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "vision",
+    "image-analysis",
+    "openai-compatible",
+    "claude-code",
+    "deepseek"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.6.1",
+    "openai": "^4.73.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}
