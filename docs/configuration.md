@@ -44,7 +44,7 @@
     "agent-vision": {
       "type": "stdio",
       "command": "npx",
-      "args": ["agent-vision-mcp"],
+      "args": ["-y", "@kitlau/agent-vision-mcp"],
       "env": {
         "VISION_API_KEY": "sk-your-api-key",
         "VISION_BASE_URL": "https://api.openai.com/v1",

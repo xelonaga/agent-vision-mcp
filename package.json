@@ -1,7 +1,7 @@
 {
-  "name": "agent-vision-mcp",
+  "name": "@kitlau/agent-vision-mcp",
   "version": "0.1.0",
-  "description": "为非视觉模型提供图片分析能力的 MCP 服务器——用户可自行配置 OpenAI 兼容的视觉 API",
+  "description": "An MCP server that gives non-vision LLMs the ability to analyze images via any OpenAI-compatible vision API",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
@@ -10,13 +10,15 @@
   "files": [
     "dist/",
     "README.md",
+    "README-CN.md",
     "LICENSE"
   ],
   "scripts": {
     "start": "node dist/index.js",
     "dev": "tsx src/index.ts",
     "build": "tsc",
-    "clean": "rm -rf dist"
+    "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
+    "prepublishOnly": "npm run build"
   },
   "engines": {
     "node": ">=18"
@@ -30,7 +32,19 @@
     "claude-code",
     "deepseek"
   ],
+  "author": "kitlau86",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kitlau86/agent-vision-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kitlau86/agent-vision-mcp/issues"
+  },
+  "homepage": "https://github.com/kitlau86/agent-vision-mcp#readme",
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.6.1",
     "openai": "^4.73.0",

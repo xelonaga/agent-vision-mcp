@@ -8,8 +8,8 @@
 
 > 🖼️ 为非视觉 AI 模型提供图片分析能力的 MCP 服务器
 
-[![npm version](https://img.shields.io/npm/v/agent-vision-mcp)](https://www.npmjs.com/package/agent-vision-mcp)
-[![license](https://img.shields.io/npm/l/agent-vision-mcp)](./LICENSE)
+[![npm version](https://img.shields.io/npm/v/@kitlau/agent-vision-mcp)](https://www.npmjs.com/package/@kitlau/agent-vision-mcp)
+[![license](https://img.shields.io/npm/l/@kitlau/agent-vision-mcp)](./LICENSE)
 
 ## 这是什么？
 
@@ -40,7 +40,7 @@ Claude Code 收到文字描述，回复你："你的代码在 src/app.ts:42 处�
 ### 1. 安装
 
 ```bash
-npm install -g agent-vision-mcp
+npm install -g @kitlau/agent-vision-mcp
 ```
 
 ### 2. 准备一个视觉 API
@@ -66,7 +66,7 @@ npm install -g agent-vision-mcp
     "agent-vision": {
       "type": "stdio",
       "command": "npx",
-      "args": ["agent-vision-mcp"],
+      "args": ["-y", "@kitlau/agent-vision-mcp"],
       "env": {
         "VISION_API_KEY": "你的 API 密钥",
         "VISION_BASE_URL": "https://api.openai.com/v1",
@@ -198,7 +198,7 @@ npm install -g agent-vision-mcp
 
 ```bash
 # 克隆项目
-git clone https://github.com/yourusername/agent-vision-mcp.git
+git clone https://github.com/kitlau86/agent-vision-mcp.git
 cd agent-vision-mcp
 
 # 安装依赖

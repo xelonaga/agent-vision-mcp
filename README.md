@@ -8,8 +8,8 @@
 
 > 🖼️ An MCP server that gives non-vision AI models the ability to analyze images
 
-[![npm version](https://img.shields.io/npm/v/agent-vision-mcp)](https://www.npmjs.com/package/agent-vision-mcp)
-[![license](https://img.shields.io/npm/l/agent-vision-mcp)](./LICENSE)
+[![npm version](https://img.shields.io/npm/v/@kitlau/agent-vision-mcp)](https://www.npmjs.com/package/@kitlau/agent-vision-mcp)
+[![license](https://img.shields.io/npm/l/@kitlau/agent-vision-mcp)](./LICENSE)
 
 ## What is this?
 
@@ -40,7 +40,7 @@ Claude Code receives the text description and replies: "Your code has a TypeErro
 ### 1. Install
 
 ```bash
-npm install -g agent-vision-mcp
+npm install -g @kitlau/agent-vision-mcp
 ```
 
 ### 2. Prepare a vision API
@@ -66,7 +66,7 @@ Add the following to your Claude Code / Claude Desktop MCP configuration:
     "agent-vision": {
       "type": "stdio",
       "command": "npx",
-      "args": ["agent-vision-mcp"],
+      "args": ["-y", "@kitlau/agent-vision-mcp"],
       "env": {
         "VISION_API_KEY": "your-api-key",
         "VISION_BASE_URL": "https://api.openai.com/v1",
@@ -198,7 +198,7 @@ When caching is enabled, the same image + prompt combination won't be re-sent to
 
 ```bash
 # Clone the project
-git clone https://github.com/yourusername/agent-vision-mcp.git
+git clone https://github.com/kitlau86/agent-vision-mcp.git
 cd agent-vision-mcp
 
 # Install dependencies
