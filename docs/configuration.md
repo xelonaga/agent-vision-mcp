@@ -14,12 +14,15 @@
 
 ## MCP 客户端配置示例
 
+> 本 MCP 服务器使用 **stdio** 传输类型 —— 以子进程方式运行，通过 stdin/stdout 与 MCP 客户端通信。**不是** SSE 或 HTTP。
+
 ### Claude Code / Claude Desktop
 
 ```json
 {
   "mcpServers": {
     "agent-vision": {
+      "type": "stdio",
       "command": "node",
       "args": ["path/to/agent-vision-mcp/dist/index.js"],
       "env": {
@@ -39,6 +42,7 @@
 {
   "mcpServers": {
     "agent-vision": {
+      "type": "stdio",
       "command": "npx",
       "args": ["agent-vision-mcp"],
       "env": {

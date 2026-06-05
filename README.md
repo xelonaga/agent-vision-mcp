@@ -50,12 +50,15 @@ npm install -g agent-vision-mcp
 
 ### 3. 配置 MCP 客户端
 
+> **传输类型：stdio** —— 本 MCP 服务器以子进程方式运行，通过标准输入输出（stdin/stdout）与客户端进行 JSON-RPC 通信。
+
 在你的 Claude Code / Claude Desktop 的 MCP 配置中添加：
 
 ```json
 {
   "mcpServers": {
     "agent-vision": {
+      "type": "stdio",
       "command": "npx",
       "args": ["agent-vision-mcp"],
       "env": {
