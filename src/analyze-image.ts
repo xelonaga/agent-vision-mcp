@@ -16,21 +16,14 @@ export const analyzeImageInputSchema = z.object({
   image: z.string()
     .min(1, "必须提供图片")
     .describe(
-      "要分析的图片。支持三种格式：" +
-      "① base64 data URL（data:image/...），" +
-      "② HTTP/HTTPS 链接，" +
-      "③ 本地文件路径（绝对路径或相对路径均可）。" +
-      "支持的图片格式：JPEG、PNG、WebP、GIF、BMP。"
+      "The image to analyze. Accepts a base64 data URL (data:image/...), " +
+      "an HTTP/HTTPS link, or a local file path. Formats: JPEG, PNG, WebP, GIF, BMP."
     ),
   prompt: z.string()
     .min(1, "必须提供分析指令")
     .describe(
-      "描述你想从图片中分析或提取什么内容。" +
-      "例如：'详细描述这张图片的内容'、" +
-      "'提取图片中所有可见的文字（OCR）'、" +
-      "'这张截图中有哪些 UI 元素？'、" +
-      "'分析这张图表中的数据和趋势'、" +
-      "'读取终端输出截图中的错误信息'。"
+      "What you want analyzed or extracted from the image, " +
+      "e.g. 'Describe this image in detail' or 'Extract all visible text (OCR)'."
     ),
 }).strict();
 

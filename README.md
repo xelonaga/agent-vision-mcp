@@ -1,58 +1,64 @@
 # agent-vision-mcp
 
-> 🖼️ 为非视觉 AI 模型提供图片分析能力的 MCP 服务器
+<div align="center">
+
+**English** | [中文](./README-CN.md)
+
+</div>
+
+> 🖼️ An MCP server that gives non-vision AI models the ability to analyze images
 
 [![npm version](https://img.shields.io/npm/v/agent-vision-mcp)](https://www.npmjs.com/package/agent-vision-mcp)
 [![license](https://img.shields.io/npm/l/agent-vision-mcp)](./LICENSE)
 
-## 这是什么？
+## What is this?
 
-很多用户给 Claude Code 等编程助手接入了 **DeepSeek v4** 等不具备视觉能力的模型。这样一来，当你在对话中发送图片时，主模型无法理解图片内容。
+Many users connect coding assistants like Claude Code to text-only models such as **DeepSeek v4** that have no vision capability. As a result, when you send an image in a conversation, the main model can't understand its content.
 
-**agent-vision-mcp** 解决了这个问题：它是一个 MCP（Model Context Protocol）服务器，允许你自行配置一个 **OpenAI 兼容的视觉 API**（比如 Gemini Flash、阿里 Qwen-VL、OpenAI、或者你自己部署的视觉模型），当主模型遇到图片时，自动调用这个工具来获取图片的文字分析结果。
+**agent-vision-mcp** solves this: it's an MCP (Model Context Protocol) server that lets you configure any **OpenAI-compatible vision API** (e.g. Gemini Flash, Alibaba Qwen-VL, OpenAI, or your own self-hosted vision model). When the main model encounters an image, it automatically calls this tool to get a text analysis of the image.
 
-简单说：**让你的文字模型"长出眼睛"。**
+In short: **give your text model eyes.**
 
-## 效果演示
+## How it works
 
 ```
-你：请分析这张截图中的错误信息 [上传 screenshot.png]
+You: Please analyze the error in this screenshot [uploads screenshot.png]
     ↓
-Claude Code (DeepSeek v4) 发现用户发来图片，但自己无法理解
+Claude Code (DeepSeek v4) sees an image but can't understand it
     ↓
-Claude Code 调用 MCP 工具：analyze_image(image="screenshot.png", prompt="读取截图中的错误信息")
+Claude Code calls the MCP tool: analyze_image(image="screenshot.png", prompt="Read the error in the screenshot")
     ↓
-agent-vision-mcp 把图片发给你配置的视觉 API（比如 Gemini Flash）
+agent-vision-mcp sends the image to your configured vision API (e.g. Gemini Flash)
     ↓
-视觉模型返回："截图显示的是终端输出，有一个 TypeError: Cannot read property 'map' of undefined 错误，出现在 src/app.ts 第 42 行..."
+The vision model returns: "The screenshot shows terminal output with a TypeError: Cannot read property 'map' of undefined error at src/app.ts line 42..."
     ↓
-Claude Code 收到文字描述，回复你："你的代码在 src/app.ts:42 处有一个 TypeError..."
+Claude Code receives the text description and replies: "Your code has a TypeError at src/app.ts:42..."
 ```
 
-## 快速开始
+## Quick start
 
-### 1. 安装
+### 1. Install
 
 ```bash
 npm install -g agent-vision-mcp
 ```
 
-### 2. 准备一个视觉 API
+### 2. Prepare a vision API
 
-你需要有一个 OpenAI 兼容的视觉 API。以下是几种常见选择：
+You need an OpenAI-compatible vision API. Here are some common options:
 
-| 供应商 | 费用 | 配置 |
-|--------|------|------|
-| **Gemini Flash** | 便宜（有免费额度） | 需获取 API key，配置 OpenAI 兼容端点 |
-| **阿里 Qwen-VL** | 按量付费 | DashScope 平台获取 API key |
-| **OpenAI** | 较贵 | 直接使用 `https://api.openai.com/v1` |
-| **自部署 vLLM/LiteLLM** | 取决于硬件 | 本地运行，无需外部费用 |
+| Provider | Cost | Configuration |
+|----------|------|---------------|
+| **Gemini Flash** | Cheap (free tier available) | Get an API key, use the OpenAI-compatible endpoint |
+| **Alibaba Qwen-VL** | Pay-as-you-go | Get an API key from the DashScope platform |
+| **OpenAI** | More expensive | Use `https://api.openai.com/v1` directly |
+| **Self-hosted vLLM/LiteLLM** | Depends on hardware | Runs locally, no external cost |
 
-### 3. 配置 MCP 客户端
+### 3. Configure the MCP client
 
-> **传输类型：stdio** —— 本 MCP 服务器以子进程方式运行，通过标准输入输出（stdin/stdout）与客户端进行 JSON-RPC 通信。
+> **Transport: stdio** — This MCP server runs as a child process and communicates with the client via standard input/output (stdin/stdout) using JSON-RPC.
 
-在你的 Claude Code / Claude Desktop 的 MCP 配置中添加：
+Add the following to your Claude Code / Claude Desktop MCP configuration:
 
 ```json
 {
@@ -62,7 +68,7 @@ npm install -g agent-vision-mcp
       "command": "npx",
       "args": ["agent-vision-mcp"],
       "env": {
-        "VISION_API_KEY": "你的 API 密钥",
+        "VISION_API_KEY": "your-api-key",
         "VISION_BASE_URL": "https://api.openai.com/v1",
         "VISION_MODEL_NAME": "gpt-4o"
       }
@@ -71,25 +77,25 @@ npm install -g agent-vision-mcp
 }
 ```
 
-### 4. 使用
+### 4. Use it
 
-配置完成后，直接在对话中发送图片即可。主模型会自动调用 `analyze_image` 工具来分析图片。
+Once configured, just send an image in the conversation. The main model will automatically call the `analyze_image` tool to analyze it.
 
-## 配置参考
+## Configuration reference
 
-### 环境变量
+### Environment variables
 
-| 变量 | 必填 | 默认值 | 说明 |
-|------|------|--------|------|
-| `VISION_API_KEY` | ✅ 是 | - | 视觉 API 的密钥 |
-| `VISION_BASE_URL` | 否 | `https://api.openai.com/v1` | OpenAI 兼容 API 地址 |
-| `VISION_MODEL_NAME` | 否 | `gpt-4o` | 模型名称 |
-| `VISION_MAX_TOKENS` | 否 | `1024` | 最大输出 token 数 |
-| `VISION_MAX_IMAGE_SIZE` | 否 | `20971520`（20MB） | 图片最大字节数 |
-| `VISION_CACHE_ENABLED` | 否 | `false` | 是否启用缓存（避免重复分析同一图片） |
-| `VISION_CACHE_DIR` | 否 | 系统临时目录 | 缓存文件存放目录 |
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `VISION_API_KEY` | ✅ Yes | - | The vision API key |
+| `VISION_BASE_URL` | No | `https://api.openai.com/v1` | OpenAI-compatible API endpoint |
+| `VISION_MODEL_NAME` | No | `gpt-4o` | Model name |
+| `VISION_MAX_TOKENS` | No | `1024` | Max output tokens |
+| `VISION_MAX_IMAGE_SIZE` | No | `20971520` (20MB) | Max image size in bytes |
+| `VISION_CACHE_ENABLED` | No | `false` | Enable caching (avoid re-analyzing the same image) |
+| `VISION_CACHE_DIR` | No | System temp dir | Directory for cache files |
 
-### 各供应商配置示例
+### Per-provider configuration examples
 
 #### OpenAI
 
@@ -103,7 +109,7 @@ npm install -g agent-vision-mcp
 }
 ```
 
-#### Gemini (via OpenAI 兼容层)
+#### Gemini (via OpenAI-compatible layer)
 
 ```json
 {
@@ -115,7 +121,7 @@ npm install -g agent-vision-mcp
 }
 ```
 
-#### 阿里 Qwen-VL (DashScope)
+#### Alibaba Qwen-VL (DashScope)
 
 ```json
 {
@@ -127,7 +133,7 @@ npm install -g agent-vision-mcp
 }
 ```
 
-#### 自部署 vLLM
+#### Self-hosted vLLM
 
 ```json
 {
@@ -139,7 +145,7 @@ npm install -g agent-vision-mcp
 }
 ```
 
-#### 自部署 LiteLLM（聚合代理）
+#### Self-hosted LiteLLM (aggregating proxy)
 
 ```json
 {
@@ -151,29 +157,29 @@ npm install -g agent-vision-mcp
 }
 ```
 
-> **提示：** LiteLLM 是一个很好的方案——它把各种视觉 API 都转成 OpenAI 兼容格式，你可以用它来聚合多个供应商。
+> **Tip:** LiteLLM is a great option — it converts various vision APIs into the OpenAI-compatible format, so you can use it to aggregate multiple providers.
 
-## 工具：analyze_image
+## Tool: analyze_image
 
-### 参数
+### Parameters
 
-| 参数 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| `image` | string | 是 | 图片。支持：base64 data URL、HTTP/HTTPS 链接、本地文件路径。格式：JPEG、PNG、WebP、GIF、BMP |
-| `prompt` | string | 是 | 分析指令。告诉视觉模型你想获取什么信息 |
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `image` | string | Yes | The image. Accepts: base64 data URL, HTTP/HTTPS link, local file path. Formats: JPEG, PNG, WebP, GIF, BMP |
+| `prompt` | string | Yes | The analysis instruction. Tells the vision model what information you want |
 
-### prompt 示例
+### prompt examples
 
-- `"详细描述这张图片中的所有内容"`
-- `"提取图片中所有可见的文字（OCR）"`
-- `"这张 UI 设计稿中有哪些界面元素和交互组件？"`
-- `"分析这张数据图表中的趋势和关键数据点"`
-- `"读取终端输出截图中的错误信息"`
-- `"这张照片中有哪些物体？它们的位置关系是怎样的？"`
+- `"Describe everything in this image in detail"`
+- `"Extract all visible text in the image (OCR)"`
+- `"What UI elements and interactive components are in this design mockup?"`
+- `"Analyze the trends and key data points in this chart"`
+- `"Read the error message in this terminal output screenshot"`
+- `"What objects are in this photo, and how are they positioned relative to each other?"`
 
-## 缓存功能
+## Caching
 
-启用缓存后，相同的图片+提示词组合不会被重复发送到视觉 API，而是直接返回之前缓存的结果。
+When caching is enabled, the same image + prompt combination won't be re-sent to the vision API; the previously cached result is returned directly.
 
 ```json
 {
@@ -184,58 +190,58 @@ npm install -g agent-vision-mcp
 }
 ```
 
-- 缓存 TTL：1 小时
-- 缓存 Key：`SHA256(图片数据 + "::" + prompt)`
-- 存储：每个缓存条目一个 JSON 文件
+- Cache TTL: 1 hour
+- Cache key: `SHA256(image data + "::" + prompt)`
+- Storage: one JSON file per cache entry
 
-## 开发
+## Development
 
 ```bash
-# 克隆项目
+# Clone the project
 git clone https://github.com/yourusername/agent-vision-mcp.git
 cd agent-vision-mcp
 
-# 安装依赖
+# Install dependencies
 npm install
 
-# 开发模式（tsx 直接运行 TypeScript）
+# Dev mode (run TypeScript directly with tsx)
 npm run dev
 
-# 编译
+# Build
 npm run build
 
-# 运行编译产物
+# Run the build output
 npm start
 ```
 
-### 技术栈
+### Tech stack
 
-- TypeScript（严格模式）
-- `@modelcontextprotocol/sdk` v1.x（MCP 框架）
-- `openai` v4.x（OpenAI 兼容 API 客户端）
-- `zod` v3.x（参数校验）
+- TypeScript (strict mode)
+- `@modelcontextprotocol/sdk` v1.x (MCP framework)
+- `openai` v4.x (OpenAI-compatible API client)
+- `zod` v3.x (parameter validation)
 
-## 故障排查
+## Troubleshooting
 
-### 启动报错 "VISION_API_KEY 未设置"
+### Startup error "VISION_API_KEY 未设置"
 
-在 MCP 客户端配置中确保设置了 `VISION_API_KEY` 环境变量。
+Make sure the `VISION_API_KEY` environment variable is set in your MCP client configuration.
 
-### 工具调用返回 "API 密钥无效（401）"
+### Tool call returns "API 密钥无效（401）"
 
-检查 API key 是否正确，以及是否有权限访问指定的模型。key 不要有多余的空格或引号。
+Check that the API key is correct and has permission to access the specified model. Make sure there are no extra spaces or quotes in the key.
 
-### 工具调用返回 "API 端点或模型不存在（404）"
+### Tool call returns "API 端点或模型不存在（404）"
 
-检查 `VISION_BASE_URL` 和 `VISION_MODEL_NAME` 是否正确。注意 `VISION_BASE_URL` 通常以 `/v1` 结尾。
+Check that `VISION_BASE_URL` and `VISION_MODEL_NAME` are correct. Note that `VISION_BASE_URL` usually ends with `/v1`.
 
-### 工具调用返回 "请求被限流（429）"
+### Tool call returns "请求被限流（429）"
 
-免费额度的 API 通常有频率限制。等待片刻后重试，或考虑启用缓存减少重复请求。
+Free-tier APIs usually have rate limits. Wait a moment and retry, or consider enabling caching to reduce duplicate requests.
 
-### 返回 "不支持的图片格式"
+### Returns "不支持的图片格式"
 
-当前支持 JPEG、PNG、WebP、GIF、BMP 格式。将图片转换为这些格式后再试。
+Currently JPEG, PNG, WebP, GIF, and BMP are supported. Convert the image to one of these formats and try again.
 
 ## License
 
