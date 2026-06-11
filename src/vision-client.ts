@@ -27,7 +27,7 @@ export class VisionAPIError extends Error {
 }
 
 /**
- * 调用视觉 API 分析图片
+ * 调用视觉 API 分析单张图片
  *
  * @param dataUrl - base64 编码的图片 data URL
  * @param prompt - 用户提供的分析指令
@@ -41,60 +41,109 @@ export async function analyzeImage(
   _mimeType: string,
   options: VisionClientOptions,
 ): Promise<string> {
-  // 创建 OpenAI 客户端实例（指向用户配置的兼容 API 地址）
-  const client = new OpenAI({
+  const client = createClient(options);
+  const content = buildContent([dataUrl], prompt);
+
+  try {
+    return await callVision(client, options, content);
+  } catch (error) {
+    return handleError(error);
+  }
+}
+
+/** 单张图片处理结果 */
+export interface ProcessedImage {
+  dataUrl: string;
+  mimeType: string;
+}
+
+/**
+ * 调用视觉 API 同时分析多张图片（对比模式）
+ *
+ * 将所有图片放在同一个 user message 的 content 数组中，
+ * 视觉模型可以同时看到所有图片进行对比分析。
+ *
+ * @param images - 已处理的图片数组（至少 2 张）
+ * @param prompt - 用户提供的对比分析指令
+ * @param options - API 连接和模型配置
+ * @returns 视觉模型返回的对比分析结果
+ */
+export async function compareImages(
+  images: ProcessedImage[],
+  prompt: string,
+  options: VisionClientOptions,
+): Promise<string> {
+  const client = createClient(options);
+  const content = buildContent(
+    images.map((img) => img.dataUrl),
+    prompt,
+  );
+
+  try {
+    return await callVision(client, options, content);
+  } catch (error) {
+    return handleError(error);
+  }
+}
+
+function createClient(options: VisionClientOptions): OpenAI {
+  return new OpenAI({
     apiKey: options.apiKey,
     baseURL: options.baseUrl,
   });
+}
 
-  try {
-    const response = await client.chat.completions.create({
-      model: options.model,
-      max_tokens: options.maxTokens,
-      messages: [
-        {
-          role: "user",
-          content: [
-            {
-              type: "image_url",
-              image_url: {
-                url: dataUrl,
-              },
-            },
-            {
-              type: "text",
-              text: prompt,
-            },
-          ],
-        },
-      ],
-    });
+function buildContent(
+  dataUrls: string[],
+  prompt: string,
+): Array<
+  | { type: "image_url"; image_url: { url: string } }
+  | { type: "text"; text: string }
+> {
+  const parts: Array<
+    { type: "image_url"; image_url: { url: string } }
+    | { type: "text"; text: string }
+  > = dataUrls.map((url) => ({
+    type: "image_url" as const,
+    image_url: { url },
+  }));
+  parts.push({ type: "text" as const, text: prompt });
+  return parts;
+}
 
-    // 提取返回的文字内容
-    const content = response.choices[0]?.message?.content;
-    if (!content) {
-      throw new VisionAPIError(
-        "EMPTY_RESPONSE",
-        "视觉 API 返回的内容为空，请检查 API 是否正常或尝试换一个提示词。",
-      );
-    }
+async function callVision(
+  client: OpenAI,
+  options: VisionClientOptions,
+  content: ReturnType<typeof buildContent>,
+): Promise<string> {
+  const response = await client.chat.completions.create({
+    model: options.model,
+    max_tokens: options.maxTokens,
+    messages: [{ role: "user" as const, content }],
+  });
 
-    return content;
-  } catch (error) {
-    // 将 openai SDK 的错误类型映射为中文友好消息
-    if (error instanceof APIError) {
-      return handleOpenAIError(error);
-    }
-    // 如果已经是 VisionAPIError，直接抛出
-    if (error instanceof VisionAPIError) {
-      throw error;
-    }
-    // 其他未知错误
+  const text = response.choices[0]?.message?.content;
+  if (!text) {
     throw new VisionAPIError(
-      "UNKNOWN",
-      `视觉 API 调用失败：${error instanceof Error ? error.message : String(error)}`,
+      "EMPTY_RESPONSE",
+      "视觉 API 返回的内容为空，请检查 API 是否正常或尝试换一个提示词。",
     );
   }
+
+  return text;
+}
+
+function handleError(error: unknown): never {
+  if (error instanceof APIError) {
+    return handleOpenAIError(error);
+  }
+  if (error instanceof VisionAPIError) {
+    throw error;
+  }
+  throw new VisionAPIError(
+    "UNKNOWN",
+    `视觉 API 调用失败：${error instanceof Error ? error.message : String(error)}`,
+  );
 }
 
 /**

@@ -16,6 +16,8 @@ import { loadConfig } from "./config.js";
 import {
   analyzeImageInputSchema,
   createAnalyzeImageHandler,
+  analyzeImagesInputSchema,
+  createAnalyzeImagesHandler,
 } from "./analyze-image.js";
 
 async function main() {
@@ -25,7 +27,7 @@ async function main() {
   // 创建 MCP 服务器实例
   const server = new McpServer({
     name: "agent-vision-mcp",
-    version: "0.1.0",
+    version: "0.2.0",
   });
 
   // 注册 analyze_image 工具
@@ -44,6 +46,23 @@ The image can be provided as a base64 data URL, an HTTP(S) link, or a local file
       },
     },
     createAnalyzeImageHandler(config),
+  );
+
+  // 注册 analyze_images 工具（多图对比）
+  server.registerTool(
+    "analyze_images",
+    {
+      title: "Compare Images",
+      description: `Compare and analyze multiple images together with a vision AI model. Send 2-10 images in one request so the model can see them side-by-side for comparison, difference detection, or A/B analysis.
+Each image accepts a base64 data URL, an HTTP(S) link, or a local file path. Formats: JPEG, PNG, WebP, GIF, BMP.`,
+      inputSchema: analyzeImagesInputSchema,
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        idempotentHint: true,
+      },
+    },
+    createAnalyzeImagesHandler(config),
   );
 
   // 使用 stdio 传输（标准输入输出）连接 MCP 客户端
